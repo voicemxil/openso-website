@@ -50,6 +50,9 @@
       <button type="submit" class="btn btn-primary btn-block" id="submit">Create account</button>
     </form>
 
+    <!-- Shown after the verification email is sent; re-requests it (server enforces a cooldown too). -->
+    <button type="button" class="btn btn-primary btn-block" id="resend" hidden>Resend email</button>
+
     <div class="auth-foot">
       Already have an account? <a href="login.html">Sign in</a>
     </div>
@@ -71,6 +74,34 @@ const form = document.getElementById("reg-form");
 const msg  = document.getElementById("msg");
 const btn  = document.getElementById("submit");
 const credFields = document.getElementById("cred-fields");
+const resendBtn = document.getElementById("resend");
+
+let pendingEmail = null, pendingUrl = null, cooldownTimer = null;
+function startResendCooldown(secs) {
+  clearInterval(cooldownTimer);
+  resendBtn.disabled = true;
+  let left = secs;
+  const tick = () => {
+    resendBtn.textContent = left > 0 ? ("Resend email (" + left + "s)") : "Resend email";
+    if (left <= 0) { resendBtn.disabled = false; clearInterval(cooldownTimer); }
+    left--;
+  };
+  tick();
+  cooldownTimer = setInterval(tick, 1000);
+}
+resendBtn.addEventListener("click", async () => {
+  if (!pendingEmail) return;
+  opensoClear(msg);
+  resendBtn.disabled = true; resendBtn.textContent = "Sending…";
+  const r = await opensoPost("/userapi/registration/request", { email: pendingEmail, confirmation_url: pendingUrl });
+  if (r.ok) {
+    opensoMsg(msg, "ok", "We've sent another verification email to " + pendingEmail + ".");
+    startResendCooldown(60);
+  } else {
+    opensoMsg(msg, "error", r.message);
+    resendBtn.disabled = false; resendBtn.textContent = "Resend email";
+  }
+});
 
 if (USE_EMAIL_VERIFICATION) {
   // Email-only first step — username/password come later on confirm.html.
@@ -95,6 +126,8 @@ form.addEventListener("submit", async (e) => {
       opensoMsg(msg, "ok",
         "Check your email! We've sent a verification link to " + email +
         ". Open it to choose your username and password and finish creating your account.");
+      pendingEmail = email; pendingUrl = confirmation_url;
+      resendBtn.hidden = false; startResendCooldown(60);
     } else {
       opensoMsg(msg, "error", r.message);
     }
