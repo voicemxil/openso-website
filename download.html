@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download — OpenSO</title>
+<link rel="icon" href="assets/favicon-32.png" type="image/png">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="brand" href="index.html">
+    <img src="assets/icon.svg" alt="OpenSO logo">
+    <span class="wm">Open<span class="so">SO</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="news.html">News</a>
+    <a href="login.html">Sign in</a>
+    <a class="cta" href="register.html">Create account</a>
+  </div>
+</nav>
+
+<header class="hero" style="padding:64px 24px 72px">
+  <h1 style="font-size:42px">Download OpenSO</h1>
+  <p class="lead">Pick your platform and you're minutes from the city. Free, of course.</p>
+</header>
+
+<section class="section">
+  <div class="dl-list">
+    <a class="dl" href="#" id="dl-win">
+      <div>
+        <div class="os">Windows</div>
+        <div class="meta">Windows 10/11 · 64-bit</div>
+      </div>
+    </a>
+    <a class="dl" href="#" id="dl-mac">
+      <div>
+        <div class="os">macOS</div>
+        <div class="meta">Intel &amp; Apple Silicon</div>
+      </div>
+    </a>
+    <a class="dl" href="#" id="dl-linux">
+      <div>
+        <div class="os">Linux</div>
+        <div class="meta">x64 · native build</div>
+      </div>
+    </a>
+  </div>
+
+  <p class="sub" style="margin-top:18px">
+    Downloads point to the latest GitHub release. You'll also need the original
+    The Sims Online game files, which the installer helps you fetch (OpenSO never redistributes EA assets).
+  </p>
+
+  <h2 style="margin-top:48px">First time? Here's the order</h2>
+  <ol class="steps">
+    <li><strong><a href="register.html">Create your free account</a></strong>.</li>
+    <li><strong>Download the client</strong> above and run the installer.</li>
+    <li><strong>Sign in</strong> inside the game with your username and password, and start playing.</li>
+  </ol>
+</section>
+
+<footer class="footer">
+  <div>
+    <a href="https://github.com/voicemxil/OpenSO/releases">All releases</a> ·
+    <a href="https://github.com/voicemxil/OpenSO">Source on GitHub</a>
+  </div>
+  <div class="credit">Built on FreeSO · free · open source · never pay-to-win. OpenSO is a fan project, not affiliated with EA.</div>
+</footer>
+
+<script>
+/* Point these at your latest GitHub release assets (auto-built by CI — see strategy doc §8).
+   Using /releases/latest keeps the links current without editing this page each release. */
+const REPO = "https://github.com/voicemxil/OpenSO";
+document.getElementById("dl-win").href   = REPO + "/releases/latest";
+document.getElementById("dl-mac").href   = REPO + "/releases/latest";
+document.getElementById("dl-linux").href = REPO + "/releases/latest";
+</script>
+</body>
+</html>

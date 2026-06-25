@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confirm your account — OpenSO</title>
+<link rel="icon" href="assets/favicon-32.png" type="image/png">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="brand" href="index.html">
+    <img src="assets/icon.svg" alt="OpenSO logo">
+    <span class="wm">Open<span class="so">SO</span></span>
+  </a>
+</nav>
+
+<main class="auth-wrap">
+  <div class="auth-card">
+    <h1>Finish your account</h1>
+    <p class="sub">Set your username and password to complete registration.</p>
+
+    <div class="msg" id="msg"></div>
+
+    <form id="confirm-form" novalidate>
+      <div class="field">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="username" required>
+        <div class="hint">3–24 characters.</div>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="new-password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="submit">Confirm &amp; create</button>
+    </form>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="credit">Built on FreeSO · free · open source · never pay-to-win.</div>
+</footer>
+
+<script src="assets/openso.js"></script>
+<script>
+const token = opensoQuery("token");
+const form = document.getElementById("confirm-form");
+const msg  = document.getElementById("msg");
+const btn  = document.getElementById("submit");
+
+/* Prefill from the register step if it ran in this browser. */
+const pu = sessionStorage.getItem("openso_pending_user");
+const pp = sessionStorage.getItem("openso_pending_pass");
+if (pu) document.getElementById("username").value = pu;
+if (pp) document.getElementById("password").value = pp;
+
+if (!token) {
+  opensoMsg(msg, "error", "This confirmation link is missing its token. Please use the link from your email.");
+  form.style.display = "none";
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  opensoClear(msg);
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
+  if (!username || !password) { opensoMsg(msg,"error","Please fill in all the fields."); return; }
+
+  btn.disabled = true; btn.textContent = "Confirming…";
+  const r = await opensoPost("/userapi/registration/confirm", { username, password, token });
+  if (r.ok) {
+    sessionStorage.removeItem("openso_pending_user");
+    sessionStorage.removeItem("openso_pending_pass");
+    form.style.display = "none";
+    opensoMsg(msg, "ok", "Your account is ready! Download the game and sign in to start playing.");
+  } else {
+    opensoMsg(msg, "error", r.message);
+  }
+  btn.disabled = false; btn.textContent = "Confirm & create";
+});
+</script>
+</body>
+</html>

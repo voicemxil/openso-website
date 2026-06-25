@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>News — OpenSO</title>
+<meta name="description" content="OpenSO news, updates, events, and release notes.">
+<link rel="icon" href="assets/favicon-32.png" type="image/png">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="brand" href="index.html">
+    <img src="assets/icon.svg" alt="OpenSO logo">
+    <span class="wm">Open<span class="so">SO</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="news.html">News</a>
+    <a href="download.html">Download</a>
+    <a href="login.html">Sign in</a>
+    <a class="cta" href="register.html">Create account</a>
+  </div>
+</nav>
+
+<header class="subhero">
+  <h1>News</h1>
+  <p>Updates, events, and release notes from the OpenSO team.</p>
+</header>
+
+<section class="section">
+  <div id="news-list" class="news-list"><p class="sub">Loading…</p></div>
+</section>
+
+<footer class="footer">
+  <div>
+    <a href="news.html">News</a> ·
+    <a href="download.html">Download</a> ·
+    <a href="register.html">Create account</a> ·
+    <a href="login.html">Sign in</a> ·
+    <a href="https://github.com/voicemxil/OpenSO">GitHub</a>
+  </div>
+  <div class="credit">Built on FreeSO · free · open source · never pay-to-win. The Sims™ is a trademark of EA. OpenSO is a fan project and is not affiliated with EA.</div>
+</footer>
+
+<script src="assets/news.js"></script>
+<script>OpenSONews.renderList(document.getElementById('news-list'));</script>
+</body>
+</html>

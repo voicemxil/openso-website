@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reset password — OpenSO</title>
+<link rel="icon" href="assets/favicon-32.png" type="image/png">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<nav class="nav">
+  <a class="brand" href="index.html">
+    <img src="assets/icon.svg" alt="OpenSO logo">
+    <span class="wm">Open<span class="so">SO</span></span>
+  </a>
+</nav>
+
+<main class="auth-wrap">
+  <div class="auth-card">
+    <h1>Set a new password</h1>
+    <p class="sub">Choose a new password for your account.</p>
+    <div class="msg" id="msg"></div>
+    <form id="reset-confirm" novalidate>
+      <div class="field">
+        <label for="new_password">New password</label>
+        <input type="password" id="new_password" autocomplete="new-password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="btn">Reset password</button>
+    </form>
+  </div>
+</main>
+
+<footer class="footer"><div class="credit">Built on FreeSO · free · open source · never pay-to-win.</div></footer>
+
+<script src="assets/openso.js"></script>
+<script>
+const token = opensoQuery("token");
+const form = document.getElementById("reset-confirm");
+const msg = document.getElementById("msg");
+const btn = document.getElementById("btn");
+if (!token) { opensoMsg(msg,"error","This reset link is missing its token."); form.style.display="none"; }
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault(); opensoClear(msg);
+  const new_password = document.getElementById("new_password").value;
+  if (!new_password) { opensoMsg(msg,"error","Please enter a new password."); return; }
+  btn.disabled = true; btn.textContent = "Resetting…";
+  /* POST /userapi/password/confirm with token + new_password */
+  const r = await opensoPost("/userapi/password/confirm", { token, new_password });
+  if (r.ok) { form.style.display="none"; opensoMsg(msg,"ok","Password reset! You can sign in to the game with your new password."); }
+  else opensoMsg(msg,"error", r.message);
+  btn.disabled = false; btn.textContent = "Reset password";
+});
+</script>
+</body>
+</html>

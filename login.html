@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account — OpenSO</title>
+<link rel="icon" href="assets/favicon-32.png" type="image/png">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="brand" href="index.html">
+    <img src="assets/icon.svg" alt="OpenSO logo">
+    <span class="wm">Open<span class="so">SO</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="news.html">News</a>
+    <a href="download.html">Download</a>
+    <a class="cta" href="register.html">Create account</a>
+  </div>
+</nav>
+
+<main class="auth-wrap">
+  <div class="auth-card">
+    <h1>Manage your account</h1>
+    <p class="sub">You sign in to <em>play</em> from inside the game client. Use this page to
+       change your password, reset a forgotten one, or link Discord.</p>
+
+    <div class="msg" id="msg"></div>
+
+    <h3 style="font-size:16px;color:var(--ink);margin:8px 0 12px">Change password</h3>
+    <form id="change-form" novalidate>
+      <div class="field">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="old_password">Current password</label>
+        <input type="password" id="old_password" autocomplete="current-password" required>
+      </div>
+      <div class="field">
+        <label for="new_password">New password</label>
+        <input type="password" id="new_password" autocomplete="new-password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="change-btn">Change password</button>
+    </form>
+
+    <hr style="border:none;border-top:1px solid var(--border);margin:26px 0">
+
+    <h3 style="font-size:16px;color:var(--ink);margin:0 0 8px">Forgot your password?</h3>
+    <form id="reset-form" novalidate>
+      <div class="field">
+        <label for="reset_email">Account email</label>
+        <input type="email" id="reset_email" autocomplete="email" required>
+        <div class="hint">We'll email you a reset link.</div>
+      </div>
+      <button type="submit" class="btn btn-ghost btn-block" id="reset-btn" style="color:var(--ink);border-color:var(--border)">Send reset link</button>
+    </form>
+
+    <hr style="border:none;border-top:1px solid var(--border);margin:26px 0">
+
+    <h3 style="font-size:16px;color:var(--ink);margin:0 0 8px">Link Discord</h3>
+    <p style="font-size:14px;color:var(--muted);margin:0 0 12px">
+      Connect your Discord to get roles, event pings, and in-game/Discord ban parity.</p>
+    <a class="btn btn-block" id="discord-link"
+       style="background:#5865F2;color:#fff" href="#">Connect Discord</a>
+    <div class="hint" style="margin-top:8px">Requires the Discord link service (see the website README).</div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="credit">Built on FreeSO · free · open source · never pay-to-win.</div>
+</footer>
+
+<script src="assets/openso.js"></script>
+<script>
+/* Point this at your Discord link service once it's deployed (see website/README.md). */
+const DISCORD_LINK_START = window.OPENSO_API_BASE + "/discord/link/start";
+document.getElementById("discord-link").href = DISCORD_LINK_START;
+
+const msg = document.getElementById("msg");
+
+/* Change password -> POST /userapi/password (works when SMTP disabled; with SMTP use reset flow). */
+const cf = document.getElementById("change-form");
+const cbtn = document.getElementById("change-btn");
+cf.addEventListener("submit", async (e) => {
+  e.preventDefault(); opensoClear(msg);
+  const username = document.getElementById("username").value.trim();
+  const old_password = document.getElementById("old_password").value;
+  const new_password = document.getElementById("new_password").value;
+  if (!username || !old_password || !new_password) { opensoMsg(msg,"error","Please fill in all the fields."); return; }
+  cbtn.disabled = true; cbtn.textContent = "Saving…";
+  const r = await opensoPost("/userapi/password", { username, old_password, new_password });
+  opensoMsg(msg, r.ok ? "ok" : "error", r.ok ? "Password changed successfully." : r.message);
+  cbtn.disabled = false; cbtn.textContent = "Change password";
+});
+
+/* Reset request -> POST /userapi/password/request with email + confirmation_url. */
+const rf = document.getElementById("reset-form");
+const rbtn = document.getElementById("reset-btn");
+rf.addEventListener("submit", async (e) => {
+  e.preventDefault(); opensoClear(msg);
+  const email = document.getElementById("reset_email").value.trim();
+  if (!email) { opensoMsg(msg,"error","Please enter your account email."); return; }
+  const confirmation_url = location.origin +
+    location.pathname.replace(/login\.html$/, "reset.html") + "?token=%token%";
+  rbtn.disabled = true; rbtn.textContent = "Sending…";
+  const r = await opensoPost("/userapi/password/request", { email, confirmation_url });
+  opensoMsg(msg, r.ok ? "ok" : "error",
+    r.ok ? "If that email has an account, a reset link is on its way." : r.message);
+  rbtn.disabled = false; rbtn.textContent = "Send reset link";
+});
+</script>
+</body>
+</html>
