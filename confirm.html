@@ -49,12 +49,6 @@ const form = document.getElementById("confirm-form");
 const msg  = document.getElementById("msg");
 const btn  = document.getElementById("submit");
 
-/* Prefill from the register step if it ran in this browser. */
-const pu = sessionStorage.getItem("openso_pending_user");
-const pp = sessionStorage.getItem("openso_pending_pass");
-if (pu) document.getElementById("username").value = pu;
-if (pp) document.getElementById("password").value = pp;
-
 if (!token) {
   opensoMsg(msg, "error", "This confirmation link is missing its token. Please use the link from your email.");
   form.style.display = "none";
@@ -70,8 +64,6 @@ form.addEventListener("submit", async (e) => {
   btn.disabled = true; btn.textContent = "Confirming…";
   const r = await opensoPost("/userapi/registration/confirm", { username, password, token });
   if (r.ok) {
-    sessionStorage.removeItem("openso_pending_user");
-    sessionStorage.removeItem("openso_pending_pass");
     form.style.display = "none";
     opensoMsg(msg, "ok", "Your account is ready! Download the game and sign in to start playing.");
   } else {

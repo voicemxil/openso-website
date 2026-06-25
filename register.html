@@ -32,16 +32,20 @@
       <div class="field">
         <label for="email">Email</label>
         <input type="email" id="email" name="email" autocomplete="email" required>
-        <div class="hint">We'll send a verification link to confirm it's you.</div>
+        <div class="hint" id="email-hint">We'll send a verification link to confirm it's you.</div>
       </div>
-      <div class="field">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" autocomplete="username" required>
-        <div class="hint">3–24 characters. This is your sim's login name.</div>
-      </div>
-      <div class="field">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" autocomplete="new-password" required>
+      <!-- Username + password: only shown for direct (no-email) registration. In the email-verification
+           flow these are collected on confirm.html after the link is clicked, so we don't ask twice. -->
+      <div id="cred-fields">
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" autocomplete="username">
+          <div class="hint">3–24 characters. This is your sim's login name.</div>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" autocomplete="new-password">
+        </div>
       </div>
       <button type="submit" class="btn btn-primary btn-block" id="submit">Create account</button>
     </form>
@@ -58,54 +62,58 @@
 
 <script src="assets/openso.js"></script>
 <script>
-/* Email-verification flow (recommended when SMTP is enabled on the server):
-   Step 1 here requests a verification email; the user finishes on confirm.html via the link.
-   If your server runs WITHOUT SMTP, switch the SUBMIT handler to the direct path noted below. */
+/* Email-verification flow (when SMTP is enabled on the server): step 1 here asks only for an email and
+   requests a verification link; the user picks a username + password on confirm.html via that link.
+   Set USE_EMAIL_VERIFICATION = false for a server WITHOUT SMTP (direct registration, all fields here). */
 const USE_EMAIL_VERIFICATION = true;
 
 const form = document.getElementById("reg-form");
 const msg  = document.getElementById("msg");
 const btn  = document.getElementById("submit");
+const credFields = document.getElementById("cred-fields");
+
+if (USE_EMAIL_VERIFICATION) {
+  // Email-only first step — username/password come later on confirm.html.
+  credFields.style.display = "none";
+  btn.textContent = "Send verification link";
+}
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   opensoClear(msg);
   const email = document.getElementById("email").value.trim();
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value;
 
-  if (!email || !username || !password) {
-    opensoMsg(msg, "error", "Please fill in all the fields.");
-    return;
-  }
-  btn.disabled = true; btn.textContent = "Creating…";
-
-  let r;
   if (USE_EMAIL_VERIFICATION) {
+    if (!email) { opensoMsg(msg, "error", "Please enter your email address."); return; }
+    btn.disabled = true; btn.textContent = "Sending…";
     /* Ask the server to email a confirmation link that lands on confirm.html?token=... */
     const confirmation_url = location.origin +
       location.pathname.replace(/register\.html$/, "confirm.html") + "?token=%token%";
-    r = await opensoPost("/userapi/registration/request", { email, confirmation_url });
+    const r = await opensoPost("/userapi/registration/request", { email, confirmation_url });
     if (r.ok) {
       form.style.display = "none";
       opensoMsg(msg, "ok",
         "Check your email! We've sent a verification link to " + email +
-        ". Open it to finish creating your account (username and password you entered will be set then).");
-      /* stash chosen username/password for the confirm step (sessionStorage, same browser) */
-      sessionStorage.setItem("openso_pending_user", username);
-      sessionStorage.setItem("openso_pending_pass", password);
+        ". Open it to choose your username and password and finish creating your account.");
+    } else {
+      opensoMsg(msg, "error", r.message);
     }
+    btn.disabled = false; btn.textContent = "Send verification link";
   } else {
     /* No-SMTP direct registration: POST /userapi/registration with username,email,password[,key] */
-    r = await opensoPost("/userapi/registration", { username, email, password });
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+    if (!email || !username || !password) { opensoMsg(msg, "error", "Please fill in all the fields."); return; }
+    btn.disabled = true; btn.textContent = "Creating…";
+    const r = await opensoPost("/userapi/registration", { username, email, password });
     if (r.ok) {
       form.style.display = "none";
       opensoMsg(msg, "ok", "Account created! You can now download the game and sign in.");
+    } else {
+      opensoMsg(msg, "error", r.message);
     }
+    btn.disabled = false; btn.textContent = "Create account";
   }
-
-  if (!r.ok) opensoMsg(msg, "error", r.message);
-  btn.disabled = false; btn.textContent = "Create account";
 });
 </script>
 </body>
