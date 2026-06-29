@@ -61,7 +61,11 @@ a:hover{text-decoration:underline}
   font-size:clamp(38px,6vw,62px);margin:0 0 10px;letter-spacing:-.5px;
 }
 .hero h1 .so{color:var(--accent)}
-.hero .tagline{font-size:13px;letter-spacing:4px;color:#8fb4c2;margin:0 0 22px;text-transform:uppercase}
+.hero .tagline{
+  font-family:'Space Grotesk',sans-serif;font-weight:600;
+  font-size:clamp(20px,2.6vw,28px);letter-spacing:-.2px;
+  color:#dbe9ef;margin:4px 0 20px;
+}
 .hero p.lead{font-size:19px;color:#c5d4dd;max-width:620px;margin:0 auto 32px}
 .hero .btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
 
@@ -114,9 +118,13 @@ a:hover{text-decoration:underline}
 
 /* ---- download list ---- */
 .dl-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:8px}
-.dl{display:flex;align-items:center;gap:14px;border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.dl{display:flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:border-color .15s,box-shadow .15s,transform .08s}
+.dl:hover{text-decoration:none;border-color:var(--accent-deep);transform:translateY(-2px);box-shadow:0 8px 24px rgba(16,49,79,.08)}
 .dl .os{font-weight:600;color:var(--ink)}
 .dl .meta{font-size:13px;color:var(--muted)}
+.dl .meta a{color:var(--accent-deep)}
+.dl-rec{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.dl-badge{display:inline-block;background:var(--accent);color:var(--accent-ink);font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:3px 9px;border-radius:20px;white-space:nowrap}
 
 /* ---- footer ---- */
 .footer{background:var(--navy-2);color:#9fb2bf;text-align:center;padding:40px 24px;font-size:14px}

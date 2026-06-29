@@ -28,54 +28,122 @@
 
 <section class="section">
   <div class="dl-list">
-    <a class="dl" href="#" id="dl-win">
+    <a class="dl" id="dl-win" href="https://github.com/voicemxil/OpenSO.Launcher/releases/latest">
       <div>
         <div class="os">Windows</div>
-        <div class="meta">Windows 10/11 · 64-bit</div>
+        <div class="meta" id="meta-win">Windows 10/11 · 64-bit installer</div>
       </div>
+      <span class="dl-badge" hidden>Recommended</span>
     </a>
-    <a class="dl" href="#" id="dl-mac">
+    <a class="dl" id="dl-mac" href="https://github.com/voicemxil/OpenSO.Launcher/releases/latest">
       <div>
         <div class="os">macOS</div>
-        <div class="meta">Intel &amp; Apple Silicon</div>
+        <div class="meta" id="meta-mac">Apple Silicon &amp; Intel · .dmg</div>
       </div>
+      <span class="dl-badge" hidden>Recommended</span>
     </a>
-    <a class="dl" href="#" id="dl-linux">
+    <a class="dl" id="dl-linux" href="https://github.com/voicemxil/OpenSO.Launcher/releases/latest">
       <div>
         <div class="os">Linux</div>
-        <div class="meta">x64 · native build</div>
+        <div class="meta" id="meta-linux">x64 · portable .zip</div>
       </div>
+      <span class="dl-badge" hidden>Recommended</span>
     </a>
   </div>
+  <p id="alt-note" class="sub" style="margin-top:10px;font-size:13px;display:none"></p>
 
   <p class="sub" style="margin-top:18px">
-    Downloads point to the latest GitHub release. You'll also need the original
-    The Sims Online game files, which the installer helps you fetch (OpenSO never redistributes EA assets).
+    Download the <strong>OpenSO launcher</strong> for your platform — it installs the game, keeps it
+    up to date, and helps you fetch the original <em>The Sims Online</em> files. OpenSO never redistributes EA assets.
   </p>
 
   <h2 style="margin-top:48px">First time? Here's the order</h2>
   <ol class="steps">
     <li><strong><a href="register.html">Create your free account</a></strong>.</li>
-    <li><strong>Download the client</strong> above and run the installer.</li>
-    <li><strong>Sign in</strong> inside the game with your username and password, and start playing.</li>
+    <li><strong>Download &amp; run the OpenSO launcher</strong> for your platform above.</li>
+    <li><strong>Sign in</strong> in the launcher and hit play — it sets the game up for you.</li>
   </ol>
 </section>
 
 <footer class="footer">
   <div>
-    <a href="https://github.com/voicemxil/OpenSO/releases">All releases</a> ·
+    <a href="https://github.com/voicemxil/OpenSO.Launcher/releases">All launcher releases</a> ·
     <a href="https://github.com/voicemxil/OpenSO">Source on GitHub</a>
   </div>
   <div class="credit">Built on FreeSO · free · open source · never pay-to-win. OpenSO is a fan project, not affiliated with EA.</div>
 </footer>
 
 <script>
-/* Point these at your latest GitHub release assets (auto-built by CI — see strategy doc §8).
-   Using /releases/latest keeps the links current without editing this page each release. */
-const REPO = "https://github.com/voicemxil/OpenSO";
-document.getElementById("dl-win").href   = REPO + "/releases/latest";
-document.getElementById("dl-mac").href   = REPO + "/releases/latest";
-document.getElementById("dl-linux").href = REPO + "/releases/latest";
+/* Resolve the latest OpenSO Launcher release and point each platform card at the right asset.
+   Cards default to the releases/latest page (works with no JS / if the API is unreachable);
+   this upgrades them to direct downloads and flags the visitor's platform. */
+(function () {
+  var LAUNCHER = "voicemxil/OpenSO.Launcher";
+  var byId = function (id) { return document.getElementById(id); };
+
+  function detectOS() {
+    var uad = navigator.userAgentData;
+    var plat = ((uad && uad.platform) || navigator.platform || "").toLowerCase();
+    var ua = navigator.userAgent || "";
+    if (plat.indexOf("win") === 0 || /windows/i.test(ua)) return "win";
+    if (plat.indexOf("mac") === 0 || /mac os x|macintosh/i.test(ua)) return "mac";
+    if (plat.indexOf("linux") === 0 || /linux|x11/i.test(ua)) return "linux";
+    return null;
+  }
+
+  function find(assets, re) {
+    for (var i = 0; i < assets.length; i++) if (re.test(assets[i].name)) return assets[i].browser_download_url;
+    return null;
+  }
+
+  // Best-effort Apple Silicon vs Intel; resolves to true for Intel.
+  function macIsIntel() {
+    return new Promise(function (res) {
+      var uad = navigator.userAgentData;
+      if (uad && uad.getHighEntropyValues) {
+        uad.getHighEntropyValues(["architecture"])
+          .then(function (v) { res(!!(v && v.architecture && /x86|amd64|x64/i.test(v.architecture))); })
+          .catch(function () { res(/Intel/i.test(navigator.userAgent)); });
+      } else { res(/Intel Mac OS X/i.test(navigator.userAgent)); }
+    });
+  }
+
+  var os = detectOS();
+  if (os) {
+    var card = byId("dl-" + os);
+    if (card) { var b = card.querySelector(".dl-badge"); if (b) { b.hidden = false; b.textContent = "Your platform"; } }
+  }
+
+  fetch("https://api.github.com/repos/" + LAUNCHER + "/releases/latest", { headers: { Accept: "application/vnd.github+json" } })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (rel) {
+      if (!rel || !rel.assets || !rel.assets.length) return; // keep releases/latest fallback hrefs
+      var a = rel.assets;
+      var win = find(a, /setup.*\.exe$/i) || find(a, /win-x64\.zip$/i);
+      var lin = find(a, /linux-x64\.zip$/i);
+      if (win) byId("dl-win").href = win;
+      if (lin) byId("dl-linux").href = lin;
+      return macIsIntel().then(function (intel) {
+        var arm = find(a, /osx-arm64\.dmg$/i) || find(a, /osx-arm64\.zip$/i);
+        var x64 = find(a, /osx-x64\.dmg$/i) || find(a, /osx-x64\.zip$/i);
+        if (os === "mac") {
+          var primary = intel ? (x64 || arm) : (arm || x64);
+          var other = intel ? arm : x64;
+          if (primary) byId("dl-mac").href = primary;
+          byId("meta-mac").textContent = (intel ? "Intel" : "Apple Silicon") + " · .dmg";
+          if (other) {
+            var note = byId("alt-note");
+            note.innerHTML = "On " + (intel ? "Apple Silicon" : "an Intel Mac") + "? " +
+              '<a href="' + other + '">Get the ' + (intel ? "Apple Silicon" : "Intel") + " build</a>.";
+            note.style.display = "";
+          }
+        } else if (arm || x64) {
+          byId("dl-mac").href = arm || x64; // non-mac visitor: default to Apple Silicon
+        }
+      });
+    })
+    .catch(function () { /* offline / rate-limited — the releases/latest hrefs stand */ });
+})();
 </script>
 </body>
 </html>
