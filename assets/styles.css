@@ -180,15 +180,15 @@ a:hover{text-decoration:underline}
    content surfaces need to flip. We just re-point the semantic tokens. */
 @media (prefers-color-scheme: dark){
   :root{
-    --ink:#eaf3f7;        /* headings */
-    --text:#c3d4de;       /* body */
-    --muted:#8aa6b6;      /* secondary */
-    --surface:#0c1a2b;    /* page + cards */
-    --surface-2:#11243b;  /* alt section band, code, thumbs */
-    --border:#20354e;
+    --ink:#f1f3f5;        /* headings */
+    --text:#c8ccd2;       /* body */
+    --muted:#969ba3;      /* secondary */
+    --surface:#17181b;    /* page + cards — neutral dark gray */
+    --surface-2:#202226;  /* alt section band, code, thumbs */
+    --border:#2e3136;
     --pill-bg:rgba(63,217,208,.13);
     --pill-ink:#79e6dd;
-    --input-bg:#0a1626;
+    --input-bg:#101113;
   }
   /* status banners need bespoke dark tints (kept readable, not washed-out) */
   .msg.error{background:#3a1714;color:#ff9c91;border-color:#5e2620}
