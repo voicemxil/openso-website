@@ -14,6 +14,9 @@
   --surface:#ffffff;
   --surface-2:#f4f7f8;
   --border:#e2e8ec;
+  --pill-bg:#e9faf8;
+  --pill-ink:var(--accent-ink);
+  --input-bg:#ffffff;
   --danger:#c0392b;
   --success:#1d9e75;
   --radius:12px;
@@ -55,6 +58,16 @@ a:hover{text-decoration:underline}
   background:linear-gradient(140deg,var(--navy-0),var(--navy-1) 55%,var(--navy-2));
   color:#fff;text-align:center;padding:84px 24px 96px;position:relative;overflow:hidden;
 }
+/* layered, animated hero mark (bg + ring + plumbob stacked) */
+.hero-mark{position:relative;width:108px;height:108px;margin:0 auto 22px}
+.hero-mark .layer{position:absolute;inset:0;width:100%;height:100%;display:block}
+@keyframes openso-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7%)}}
+@keyframes openso-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:no-preference){
+  .hero-mark .ring{transform-origin:50% 50%;animation:openso-spin 26s linear infinite}
+  .hero-mark .plumbob{animation:openso-bob 4.5s ease-in-out infinite}
+}
+/* legacy single-image hero icon (other pages) */
 .hero .icon{width:104px;height:104px;margin-bottom:22px}
 .hero h1{
   font-family:'Space Grotesk',sans-serif;font-weight:700;
@@ -94,7 +107,7 @@ a:hover{text-decoration:underline}
 }
 .card h3{margin:0 0 8px;font-size:18px;font-weight:600;color:var(--ink)}
 .card p{margin:0;color:var(--muted);font-size:15px}
-.pill{display:inline-block;background:#e9faf8;color:var(--accent-ink);font-size:13px;
+.pill{display:inline-block;background:var(--pill-bg);color:var(--pill-ink);font-size:13px;
   font-weight:600;padding:4px 12px;border-radius:20px;margin-bottom:14px}
 
 /* ---- forms / auth ---- */
@@ -106,7 +119,7 @@ a:hover{text-decoration:underline}
 .field label{display:block;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:6px}
 .field input{
   width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:var(--radius-sm);
-  font-family:inherit;font-size:15px;background:#fff;color:var(--text);
+  font-family:inherit;font-size:15px;background:var(--input-bg);color:var(--text);
 }
 .field input:focus{outline:none;border-color:var(--accent-deep);box-shadow:0 0 0 3px rgba(63,217,208,.18)}
 .field .hint{font-size:12px;color:var(--muted);margin-top:5px}
@@ -146,7 +159,7 @@ a:hover{text-decoration:underline}
 .news-body h3{margin:6px 0 8px;font-size:19px;color:var(--ink)}
 .news-body p{margin:0 0 12px;color:var(--muted);font-size:15px}
 .news-meta{font-size:13px;color:var(--accent-deep);font-weight:600;letter-spacing:.3px}
-.tag{display:inline-block;background:#e9faf8;color:var(--accent-ink);font-size:12px;font-weight:600;padding:3px 10px;border-radius:14px;margin-right:6px}
+.tag{display:inline-block;background:var(--pill-bg);color:var(--pill-ink);font-size:12px;font-weight:600;padding:3px 10px;border-radius:14px;margin-right:6px}
 .post{max-width:760px}
 .post .back{display:inline-block;margin-bottom:18px;font-weight:600}
 .post-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,4vw,40px);color:var(--ink);margin:8px 0 22px}
@@ -161,3 +174,25 @@ a:hover{text-decoration:underline}
 .post-content blockquote{border-left:3px solid var(--accent);margin:0 0 16px;padding:4px 16px;color:var(--muted)}
 .post-content ul,.post-content ol{margin:0 0 16px;padding-left:22px}
 .post-content a{color:var(--accent-deep);text-decoration:underline}
+
+/* ---- auto dark mode (follows the OS / browser setting) ---- */
+/* The nav, hero, subhero and footer are navy in both themes, so only the light
+   content surfaces need to flip. We just re-point the semantic tokens. */
+@media (prefers-color-scheme: dark){
+  :root{
+    --ink:#eaf3f7;        /* headings */
+    --text:#c3d4de;       /* body */
+    --muted:#8aa6b6;      /* secondary */
+    --surface:#0c1a2b;    /* page + cards */
+    --surface-2:#11243b;  /* alt section band, code, thumbs */
+    --border:#20354e;
+    --pill-bg:rgba(63,217,208,.13);
+    --pill-ink:#79e6dd;
+    --input-bg:#0a1626;
+  }
+  /* status banners need bespoke dark tints (kept readable, not washed-out) */
+  .msg.error{background:#3a1714;color:#ff9c91;border-color:#5e2620}
+  .msg.ok{background:#0e2c21;color:#7fe0c0;border-color:#1f5a44}
+  /* light shadows vanish on dark — deepen the hover lift */
+  .dl:hover,.news-card:hover{box-shadow:0 10px 28px rgba(0,0,0,.4)}
+}
