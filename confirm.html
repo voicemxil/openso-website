@@ -25,6 +25,11 @@
 
     <form id="confirm-form" novalidate>
       <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" autocomplete="email" required>
+        <div class="hint">The address this confirmation link was sent to.</div>
+      </div>
+      <div class="field">
         <label for="username">Username</label>
         <input type="text" id="username" name="username" autocomplete="username" required>
         <div class="hint">3–24 characters.</div>
@@ -49,6 +54,13 @@ const form = document.getElementById("confirm-form");
 const msg  = document.getElementById("msg");
 const btn  = document.getElementById("submit");
 
+// The confirm endpoint requires the email the code was issued for (bound server-side against the
+// token — anti account-takeover). Newer verification links carry it as ?email=...; prefill from
+// there, but keep the field editable so links sent before the change (or with stripped params)
+// still work by typing it manually.
+const emailFromLink = opensoQuery("email");
+if (emailFromLink) document.getElementById("email").value = emailFromLink;
+
 if (!token) {
   opensoMsg(msg, "error", "This confirmation link is missing its token. Please use the link from your email.");
   form.style.display = "none";
@@ -57,12 +69,13 @@ if (!token) {
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   opensoClear(msg);
+  const email    = document.getElementById("email").value.trim();
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value;
-  if (!username || !password) { opensoMsg(msg,"error","Please fill in all the fields."); return; }
+  if (!email || !username || !password) { opensoMsg(msg,"error","Please fill in all the fields."); return; }
 
   btn.disabled = true; btn.textContent = "Confirming…";
-  const r = await opensoPost("/userapi/registration/confirm", { username, password, token });
+  const r = await opensoPost("/userapi/registration/confirm", { username, password, token, email });
   if (r.ok) {
     form.style.display = "none";
     opensoMsg(msg, "ok", "Your account is ready! Download the game and sign in to start playing.");

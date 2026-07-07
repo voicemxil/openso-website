@@ -117,9 +117,15 @@ form.addEventListener("submit", async (e) => {
   if (USE_EMAIL_VERIFICATION) {
     if (!email) { opensoMsg(msg, "error", "Please enter your email address."); return; }
     btn.disabled = true; btn.textContent = "Sending…";
-    /* Ask the server to email a confirmation link that lands on confirm.html?token=... */
+    /* Ask the server to email a confirmation link that lands on confirm.html?token=...&email=...
+       The email rides in the link because the confirm endpoint now REQUIRES the email alongside the
+       token (it's bound server-side to stop a guessed code being used against someone else's address)
+       — and the link may be opened on a different device than this one, so the URL is the only
+       reliable carrier. confirm.html also lets the user type it manually (older links / stripped
+       query params). */
     const confirmation_url = location.origin +
-      location.pathname.replace(/register\.html$/, "confirm.html") + "?token=%token%";
+      location.pathname.replace(/register\.html$/, "confirm.html") +
+      "?token=%token%&email=" + encodeURIComponent(email);
     const r = await opensoPost("/userapi/registration/request", { email, confirmation_url });
     if (r.ok) {
       form.style.display = "none";
