@@ -4,8 +4,10 @@ The static site for OpenSO (plain HTML/CSS/JS, no build step): landing page, new
 registration + management, and downloads. Hosted free on **GitHub Pages** at **openso.org**; the account
 forms talk to the game server's **FSO.Server.Api.Core** (`userapi`) at **api.openso.org**.
 
-This is a **dedicated repo with the site at the root**. The Pages deploy workflow is already at
-`.github/workflows/deploy-pages.yml`.
+This is a **dedicated repo with the site at the root**. Pages deploys straight from the `main` branch
+(**Settings → Pages → Source: Deploy from a branch**, branch `main` / root) — there is no Actions
+workflow and no build step. `.nojekyll` at the repo root tells Pages to serve every file as-is instead
+of running it through Jekyll (which would otherwise ignore `_`-prefixed paths and reprocess the HTML).
 
 ## Layout
 
@@ -57,8 +59,9 @@ shape stable so the launcher integration doesn't break.
    no-email registration.
 3. **CORS** — already handled: the server's default CORS policy allows any origin on the public
    `userapi/registration` + `userapi/password` endpoints, so no server change is needed.
-4. **Deploy** — push to `main`; the Actions workflow publishes to Pages. In repo **Settings → Pages**:
-   Source = **GitHub Actions**, Custom domain = `openso.org`, **Enforce HTTPS**.
+4. **Deploy** — push to `main`; GitHub Pages serves the branch directly, no build/Actions step involved.
+   In repo **Settings → Pages**: Source = **Deploy from a branch**, Branch = `main` / `(root)`,
+   Custom domain = `openso.org`, **Enforce HTTPS**.
 
 DNS for the apex (Cloudflare) → GitHub Pages IPs `185.199.108–111.153` (A records), `www` CNAME →
 `voicemxil.github.io`. The `api`/`game` records (→ your box, DNS-only) and the full server bring-up are in
