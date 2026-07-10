@@ -34,6 +34,14 @@
         <input type="email" id="email" name="email" autocomplete="email" required>
         <div class="hint" id="email-hint">We'll send a verification link to confirm it's you.</div>
       </div>
+      <!-- Registration key: shown only on invite-only servers (discovered via /userapi/registration/info).
+           In the email-verification flow the key is collected on confirm.html (submitted with /confirm), so
+           this field is only used for direct/no-SMTP registration; the email flow shows a notice instead. -->
+      <div class="field" id="key-field" hidden>
+        <label for="key">Registration key</label>
+        <input type="text" id="key" name="key" autocomplete="off">
+        <div class="hint">This server is invite-only. Enter the key you were given.</div>
+      </div>
       <!-- Username + password: only shown for direct (no-email) registration. In the email-verification
            flow these are collected on confirm.html after the link is clicked, so we don't ask twice. -->
       <div id="cred-fields">
@@ -76,7 +84,27 @@ const btn  = document.getElementById("submit");
 const credFields = document.getElementById("cred-fields");
 const resendBtn = document.getElementById("resend");
 
+const keyField = document.getElementById("key-field");
+
 let pendingEmail = null, pendingUrl = null, cooldownTimer = null;
+// Whether this server is invite-only. Fails OPEN to false (opensoRegInfo swallows errors), so a public
+// server — or an unreachable/absent discovery endpoint — leaves the page exactly as it was: no key field,
+// no notice, identical requests. The server still enforces the real rule when the form is submitted.
+let keyRequired = false;
+(async () => {
+  const info = await opensoRegInfo();
+  keyRequired = info.key_required;
+  if (!keyRequired) return;
+  if (USE_EMAIL_VERIFICATION) {
+    // Key is collected on confirm.html (it must ride with the /confirm step, and the link may be opened on
+    // another device), so here we only tell the user to expect it.
+    document.getElementById("email-hint").textContent =
+      "This server is invite-only — you'll enter your registration key when you finish your account.";
+  } else {
+    keyField.hidden = false;
+  }
+})();
+
 function startResendCooldown(secs) {
   clearInterval(cooldownTimer);
   resendBtn.disabled = true;
@@ -142,9 +170,13 @@ form.addEventListener("submit", async (e) => {
     /* No-SMTP direct registration: POST /userapi/registration with username,email,password[,key] */
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value;
+    const key = document.getElementById("key").value.trim();
     if (!email || !username || !password) { opensoMsg(msg, "error", "Please fill in all the fields."); return; }
+    if (keyRequired && !key) { opensoMsg(msg, "error", "This server is invite-only — please enter your registration key."); return; }
     btn.disabled = true; btn.textContent = "Creating…";
-    const r = await opensoPost("/userapi/registration", { username, email, password });
+    // Only include the key when we have one, so the public flow posts an identical body to before.
+    const fields = key ? { username, email, password, key } : { username, email, password };
+    const r = await opensoPost("/userapi/registration", fields);
     if (r.ok) {
       form.style.display = "none";
       opensoMsg(msg, "ok", "Account created! You can now download the game and sign in.");
