@@ -50,8 +50,6 @@
       <span class="dl-badge" hidden>Recommended</span>
     </a>
   </div>
-  <p id="alt-note" class="sub" style="margin-top:10px;font-size:13px;display:none"></p>
-
   <p class="sub" style="margin-top:18px">
     Download the <strong>OpenSO launcher</strong> for your platform — it installs the game, keeps it
     up to date, and helps you fetch the original <em>The Sims Online</em> files. OpenSO never redistributes EA assets.
@@ -68,7 +66,7 @@
   <p class="sub">The OpenSO launcher is native on all three — no emulation, no extra steps.</p>
   <ul class="steps" style="list-style:disc">
     <li><strong>Windows</strong> — 10/11, 64-bit.</li>
-    <li><strong>macOS</strong> — Apple Silicon (arm64) &amp; Intel (x64).</li>
+    <li><strong>macOS</strong> — <span id="plat-mac">Apple Silicon (arm64) &amp; Intel (x64)</span>.</li>
     <li><strong>Linux</strong> — 64-bit (x64), portable .zip.</li>
   </ul>
 
@@ -116,15 +114,49 @@
     return null;
   }
 
-  // Best-effort Apple Silicon vs Intel; resolves to true for Intel.
-  function macIsIntel() {
-    return new Promise(function (res) {
+  /* Apple Silicon vs Intel. The UA string can't be trusted: Safari and Firefox
+     report "Intel Mac OS X" on Apple Silicon too. Probe real signals in order of
+     reliability; only when every probe is ambiguous fall back to Apple Silicon,
+     the overwhelming majority of Macs in service today. Resolves "arm64"|"x64". */
+  function detectMacArch() {
+    function fromHints() {
       var uad = navigator.userAgentData;
-      if (uad && uad.getHighEntropyValues) {
-        uad.getHighEntropyValues(["architecture"])
-          .then(function (v) { res(!!(v && v.architecture && /x86|amd64|x64/i.test(v.architecture))); })
-          .catch(function () { res(/Intel/i.test(navigator.userAgent)); });
-      } else { res(/Intel Mac OS X/i.test(navigator.userAgent)); }
+      if (!uad || !uad.getHighEntropyValues) return Promise.resolve(null);
+      return uad.getHighEntropyValues(["architecture"]).then(function (v) {
+        var a = (v && v.architecture) || "";
+        if (/^arm$/i.test(a)) return "arm64";
+        if (/x86|amd64|x64/i.test(a)) return "x64";
+        return null;
+      }).catch(function () { return null; });
+    }
+    function fromWebGL() {
+      try {
+        var gl = document.createElement("canvas").getContext("webgl");
+        if (!gl) return null;
+        var ext = gl.getExtension("WEBGL_debug_renderer_info");
+        var r = String((ext && gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) || gl.getParameter(gl.RENDERER) || "");
+        if (/apple m\d/i.test(r)) return "arm64";
+        if (/intel|amd|radeon|nvidia|geforce|iris/i.test(r)) return "x64";
+        return null; // Safari masks both architectures as "Apple GPU"
+      } catch (e) { return null; }
+    }
+    function fromWebGPU() {
+      if (!navigator.gpu || !navigator.gpu.requestAdapter) return Promise.resolve(null);
+      return navigator.gpu.requestAdapter().then(function (ad) {
+        var i = ad && ad.info;
+        if (!i) return null;
+        var vendor = String(i.vendor || "").toLowerCase();
+        var rest = (String(i.architecture || "") + " " + String(i.description || "")).toLowerCase();
+        if (/intel|amd|nvidia/.test(vendor + " " + rest)) return "x64";
+        if (/apple/.test(vendor) && /\bm\d/.test(rest)) return "arm64";
+        return null;
+      }).catch(function () { return null; });
+    }
+    return fromHints().then(function (arch) {
+      if (arch) return arch;
+      arch = fromWebGL();
+      if (arch) return arch;
+      return fromWebGPU().then(function (a) { return a || "arm64"; });
     });
   }
 
@@ -143,23 +175,23 @@
       var lin = find(a, /linux-x64\.zip$/i);
       if (win) byId("dl-win").href = win;
       if (lin) byId("dl-linux").href = lin;
-      return macIsIntel().then(function (intel) {
-        var arm = find(a, /osx-arm64\.dmg$/i) || find(a, /osx-arm64\.zip$/i);
-        var x64 = find(a, /osx-x64\.dmg$/i) || find(a, /osx-x64\.zip$/i);
-        if (os === "mac") {
-          var primary = intel ? (x64 || arm) : (arm || x64);
-          var other = intel ? arm : x64;
-          if (primary) byId("dl-mac").href = primary;
-          byId("meta-mac").textContent = (intel ? "Intel" : "Apple Silicon") + " · .dmg";
-          if (other) {
-            var note = byId("alt-note");
-            note.innerHTML = "On " + (intel ? "Apple Silicon" : "an Intel Mac") + "? " +
-              '<a href="' + other + '">Get the ' + (intel ? "Apple Silicon" : "Intel") + " build</a>.";
-            note.style.display = "";
-          }
-        } else if (arm || x64) {
-          byId("dl-mac").href = arm || x64; // non-mac visitor: default to Apple Silicon
-        }
+      var arm = find(a, /osx-arm64\.dmg$/i) || find(a, /osx-arm64\.zip$/i);
+      var x64 = find(a, /osx-x64\.dmg$/i) || find(a, /osx-x64\.zip$/i);
+      // Supported-platforms list always links both Mac builds directly,
+      // so a misdetected visitor still has a one-click path.
+      var plat = byId("plat-mac");
+      if (plat && arm && x64) {
+        plat.innerHTML = '<a href="' + arm + '">Apple Silicon (arm64)</a> &amp; <a href="' + x64 + '">Intel (x64)</a>';
+      }
+      if (os !== "mac") {
+        if (arm || x64) byId("dl-mac").href = arm || x64;
+        return;
+      }
+      return detectMacArch().then(function (arch) {
+        var intel = arch === "x64";
+        var primary = intel ? (x64 || arm) : (arm || x64);
+        if (primary) byId("dl-mac").href = primary;
+        byId("meta-mac").textContent = (intel ? "Intel" : "Apple Silicon") + " · .dmg";
       });
     })
     .catch(function () { /* offline / rate-limited — the releases/latest hrefs stand */ });
