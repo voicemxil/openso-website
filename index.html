@@ -39,34 +39,6 @@
   </div>
 </header>
 
-<section class="section" id="live-stats">
-  <h2>Live from the city</h2>
-  <p class="sub">Real-time server status — the same numbers the launcher shows on its home screen.</p>
-  <div class="ss-card" id="server-status" role="status" aria-live="polite">
-    <div class="ss-head">
-      <div class="ss-head-l">
-        <span class="ss-dot" id="ss-dot" aria-hidden="true"></span>
-        <span class="ss-name" id="ss-server-name">OpenSO</span>
-        <span class="ss-status" id="ss-server-status">Connecting…</span>
-      </div>
-      <div class="ss-head-r">
-        <span class="ss-updated" id="ss-updated">Updated —</span>
-        <button class="ss-refresh" id="ss-refresh" type="button">Refresh</button>
-      </div>
-    </div>
-    <div class="ss-stats">
-      <div class="ss-stat"><div class="num accent" id="ss-players">—</div><div class="lbl">players online</div></div>
-      <div class="ss-stat"><div class="num good" id="ss-lots">—</div><div class="lbl">lots online</div></div>
-      <div class="ss-stat"><div class="num" id="ss-clock">—</div><div class="lbl">city time</div></div>
-    </div>
-    <div class="ss-busiest" id="ss-busiest" hidden>
-      <span class="label">Busiest lots</span>
-      <ul class="ss-lots-list" id="ss-lots-list"></ul>
-    </div>
-    <p class="ss-foot">Game version <strong id="ss-version">—</strong></p>
-  </div>
-</section>
-
 <section class="section">
   <h2>Why OpenSO</h2>
   <p class="sub">A polished, fair place to play — not a museum piece, and not a cash grab.</p>
@@ -118,6 +90,40 @@
   </div>
   <div class="credit">Built on FreeSO · free · open source · never pay-to-win. The Sims™ is a trademark of EA. OpenSO is a fan project and is not affiliated with EA.</div>
 </footer>
+
+<!-- Live server status — floating corner widget, same data the launcher shows. Starts collapsed. -->
+<div class="ss-fab" id="server-status">
+  <div class="ss-panel" id="ss-panel" role="region" aria-label="Live server status" hidden>
+    <div class="ss-head">
+      <div class="ss-head-l">
+        <span class="ss-name" id="ss-server-name">OpenSO</span>
+        <span class="ss-status" id="ss-server-status">Connecting…</span>
+      </div>
+      <button class="ss-close" id="ss-close" type="button" aria-label="Minimize server status">&times;</button>
+    </div>
+    <div class="ss-stats">
+      <div class="ss-stat"><div class="num accent" id="ss-players">—</div><div class="lbl">players online</div></div>
+      <div class="ss-stat"><div class="num good" id="ss-lots">—</div><div class="lbl">lots online</div></div>
+    </div>
+    <div class="ss-meta">
+      <span>City time <strong id="ss-clock">—</strong></span>
+      <span>Version <strong id="ss-version">—</strong></span>
+    </div>
+    <div class="ss-busiest" id="ss-busiest" hidden>
+      <span class="label">Busiest lots</span>
+      <ul class="ss-lots-list" id="ss-lots-list"></ul>
+    </div>
+    <div class="ss-panel-foot">
+      <span class="ss-updated" id="ss-updated">Updated —</span>
+      <button class="ss-refresh" id="ss-refresh" type="button">Refresh</button>
+    </div>
+  </div>
+  <button class="ss-fab-toggle" id="ss-toggle" type="button" aria-expanded="false" aria-controls="ss-panel">
+    <span class="ss-dot" id="ss-dot" aria-hidden="true"></span>
+    <span class="ss-fab-label" id="ss-fab-label">Server status</span>
+    <span class="ss-fab-caret" id="ss-caret" aria-hidden="true">▾</span>
+  </button>
+</div>
 
 <script src="assets/openso.js"></script>
 <script src="assets/status.js"></script>

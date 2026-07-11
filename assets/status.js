@@ -59,6 +59,7 @@
     var root = $('server-status');
     if (root) root.classList.add('is-offline');
     setDot(false);
+    setText('ss-fab-label', 'Server offline');
     setText('ss-server-name', 'OpenSO');
     setText('ss-server-status', 'Offline');
     setText('ss-players', '—');
@@ -84,6 +85,8 @@
     setDot(online);
     setText('ss-server-name', (shard && shard.name) || 'OpenSO');
     setText('ss-server-status', status === 'Up' ? 'Online' : status);
+    // Collapsed-pill summary: "N online" when reachable, else the status label.
+    setText('ss-fab-label', online ? (numberOr(s.playersOnline) + ' online') : status);
 
     setText('ss-players', numberOr(s.playersOnline));
     setText('ss-lots', numberOr(s.lotsOnline));
@@ -150,9 +153,30 @@
     }
   }
 
+  // Expand/collapse the panel above the pill; remember the choice within the session.
+  function setOpen(open) {
+    var root = $('server-status'), panel = $('ss-panel'), toggle = $('ss-toggle');
+    if (!root || !panel || !toggle) return;
+    root.setAttribute('data-open', open ? 'true' : 'false');
+    panel.hidden = !open;
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    try { localStorage.setItem('openso_ss_open', open ? '1' : '0'); } catch (e) {}
+  }
+
   function wire() {
-    var btn = $('ss-refresh');
-    if (btn) btn.addEventListener('click', function () { btn.disabled = true; load(); });
+    var refresh = $('ss-refresh');
+    if (refresh) refresh.addEventListener('click', function () { refresh.disabled = true; load(); });
+
+    var toggle = $('ss-toggle');
+    if (toggle) toggle.addEventListener('click', function () { setOpen($('ss-panel').hidden); });
+    var close = $('ss-close');
+    if (close) close.addEventListener('click', function () { setOpen(false); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { var p = $('ss-panel'); if (p && !p.hidden) setOpen(false); }
+    });
+    var stored = null; try { stored = localStorage.getItem('openso_ss_open'); } catch (e) {}
+    setOpen(stored === '1'); // default collapsed
+
     load();
     setInterval(load, POLL_MS);
     setInterval(tickClock, 1000); // keep the in-game clock visibly ticking between polls

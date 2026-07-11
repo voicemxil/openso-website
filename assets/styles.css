@@ -118,57 +118,91 @@ a:hover{text-decoration:underline}
 .pill{display:inline-block;background:var(--pill-bg);color:var(--pill-ink);font-size:13px;
   font-weight:600;padding:4px 12px;border-radius:20px;margin-bottom:14px}
 
-/* ---- live server status (mirrors the launcher's SERVER STATUS card) ---- */
-.ss-card{
-  max-width:760px;margin:0 auto;background:var(--surface);
-  border:1px solid var(--border);border-radius:var(--radius);padding:24px 26px;
+/* ---- live server status — floating corner widget (same data the launcher shows) ---- */
+.ss-fab{
+  position:fixed;right:20px;bottom:20px;z-index:60;
+  display:flex;flex-direction:column;align-items:flex-end;gap:10px;
 }
-.ss-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.ss-head-l{display:flex;align-items:center;gap:10px;min-width:0}
-.ss-dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--muted);box-shadow:0 0 0 3px rgba(94,136,147,.18)}
+/* collapsed pill: live dot + short summary; click to expand the panel above it */
+.ss-fab-toggle{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--surface);color:var(--ink);
+  border:1px solid var(--border);border-radius:999px;
+  padding:9px 15px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;
+  box-shadow:0 8px 24px rgba(16,49,79,.16);
+  transition:transform .08s,box-shadow .15s;
+}
+.ss-fab-toggle:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(16,49,79,.22)}
+.ss-fab-label{white-space:nowrap}
+.ss-fab-caret{font-size:10px;color:var(--muted);transition:transform .18s}
+.ss-fab[data-open="true"] .ss-fab-caret{transform:rotate(180deg)}
+
+.ss-dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--muted);box-shadow:0 0 0 3px rgba(94,136,147,.18)}
 .ss-dot.is-up{background:var(--success);box-shadow:0 0 0 3px rgba(29,158,117,.2)}
 .ss-dot.is-down{background:var(--danger);box-shadow:0 0 0 3px rgba(192,57,43,.18)}
-.ss-name{font-weight:700;color:var(--ink);font-size:17px}
-.ss-status{color:var(--muted);font-size:14px}
-.ss-head-r{display:flex;align-items:center;gap:12px}
-.ss-updated{font-size:12px;color:var(--muted)}
-.ss-refresh{
-  font-family:inherit;font-size:13px;font-weight:600;color:var(--accent-ink);
-  background:var(--pill-bg);border:1px solid transparent;border-radius:20px;
-  padding:6px 14px;cursor:pointer;transition:filter .15s;
+
+.ss-panel{
+  width:min(320px,calc(100vw - 40px));
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px;box-shadow:0 16px 40px rgba(16,49,79,.22);transform-origin:bottom right;
 }
+.ss-panel[hidden]{display:none}
+@media (prefers-reduced-motion:no-preference){
+  .ss-panel:not([hidden]){animation:ss-pop .16s ease-out}
+}
+@keyframes ss-pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+
+.ss-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ss-head-l{display:flex;align-items:baseline;gap:8px;min-width:0}
+.ss-name{font-weight:700;color:var(--ink);font-size:16px}
+.ss-status{color:var(--muted);font-size:13px}
+.ss-close{border:none;background:none;color:var(--muted);cursor:pointer;font-size:20px;
+  line-height:1;padding:0 2px;border-radius:6px}
+.ss-close:hover{color:var(--ink)}
+
+.ss-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.ss-stat{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:12px;text-align:center}
+.ss-stat .num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;line-height:1.1;color:var(--ink)}
+.ss-stat .num.accent{color:var(--accent-deep)}
+.ss-stat .num.good{color:var(--success)}
+.ss-stat .lbl{font-size:11px;color:var(--muted);margin-top:3px}
+
+.ss-meta{display:flex;justify-content:space-between;gap:10px;margin-top:12px;font-size:13px;color:var(--muted)}
+.ss-meta strong{color:var(--ink);font-weight:600}
+
+.ss-busiest{margin-top:14px}
+.ss-busiest[hidden]{display:none}
+.ss-busiest .label{display:block;font-size:11px;font-weight:700;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.ss-lots-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.ss-lot{display:flex;align-items:center;gap:10px;border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:6px 9px}
+.ss-lot-thumb{width:38px;height:29px;border-radius:5px;flex:none;background-size:cover;
+  background-position:center;background-color:var(--surface-2)}
+.ss-lot-name{flex:1;min-width:0;font-weight:600;color:var(--ink);font-size:14px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ss-lot-players{color:var(--accent-deep);font-weight:700;font-size:14px;flex:none}
+.ss-lot-players-lbl{color:var(--muted);font-weight:500;font-size:11px}
+
+.ss-panel-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
+.ss-updated{font-size:12px;color:var(--muted)}
+.ss-refresh{font-family:inherit;font-size:13px;font-weight:600;color:var(--accent-ink);
+  background:var(--pill-bg);border:1px solid transparent;border-radius:999px;
+  padding:6px 14px;cursor:pointer;transition:filter .15s}
 .ss-refresh:hover{filter:brightness(.97)}
 .ss-refresh:disabled{opacity:.55;cursor:default}
 
-.ss-stats{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:14px;margin-top:22px;
+.ss-fab.is-offline .ss-stat .num{color:var(--muted)}
+
+@media (max-width:520px){
+  .ss-fab{right:12px;bottom:12px}
 }
-.ss-stat{
-  background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);
-  padding:16px 14px;text-align:center;
+/* floating shadows vanish on dark — deepen them so the widget still reads as lifted */
+@media (prefers-color-scheme:dark){
+  .ss-fab-toggle{box-shadow:0 8px 24px rgba(0,0,0,.5)}
+  .ss-panel{box-shadow:0 16px 40px rgba(0,0,0,.55)}
 }
-.ss-stat .num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:30px;line-height:1.1;color:var(--ink)}
-.ss-stat .num.accent{color:var(--accent-deep)}
-.ss-stat .num.good{color:var(--success)}
-.ss-stat .lbl{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:.2px}
-
-.ss-foot{margin-top:16px;font-size:13px;color:var(--muted);text-align:center}
-.ss-foot strong{color:var(--ink);font-weight:600}
-
-.ss-busiest{margin-top:22px}
-.ss-busiest .label{display:block;font-size:12px;font-weight:700;letter-spacing:.6px;
-  text-transform:uppercase;color:var(--muted);margin-bottom:10px}
-.ss-lots-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-.ss-lot{display:flex;align-items:center;gap:12px;border:1px solid var(--border);
-  border-radius:var(--radius-sm);padding:8px 12px;background:var(--surface)}
-.ss-lot-thumb{width:44px;height:33px;border-radius:6px;flex:none;background-size:cover;
-  background-position:center;background-color:var(--surface-2)}
-.ss-lot-name{flex:1;min-width:0;font-weight:600;color:var(--ink);font-size:15px;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ss-lot-players{color:var(--accent-deep);font-weight:700;font-size:15px;flex:none}
-.ss-lot-players-lbl{color:var(--muted);font-weight:500;font-size:12px}
-
-.is-offline .ss-stat .num{color:var(--muted)}
 
 /* ---- forms / auth ---- */
 .auth-wrap{max-width:440px;margin:56px auto;padding:0 24px}
