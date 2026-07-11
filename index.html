@@ -39,6 +39,34 @@
   </div>
 </header>
 
+<section class="section" id="live-stats">
+  <h2>Live from the city</h2>
+  <p class="sub">Real-time server status — the same numbers the launcher shows on its home screen.</p>
+  <div class="ss-card" id="server-status" role="status" aria-live="polite">
+    <div class="ss-head">
+      <div class="ss-head-l">
+        <span class="ss-dot" id="ss-dot" aria-hidden="true"></span>
+        <span class="ss-name" id="ss-server-name">OpenSO</span>
+        <span class="ss-status" id="ss-server-status">Connecting…</span>
+      </div>
+      <div class="ss-head-r">
+        <span class="ss-updated" id="ss-updated">Updated —</span>
+        <button class="ss-refresh" id="ss-refresh" type="button">Refresh</button>
+      </div>
+    </div>
+    <div class="ss-stats">
+      <div class="ss-stat"><div class="num accent" id="ss-players">—</div><div class="lbl">players online</div></div>
+      <div class="ss-stat"><div class="num good" id="ss-lots">—</div><div class="lbl">lots online</div></div>
+      <div class="ss-stat"><div class="num" id="ss-clock">—</div><div class="lbl">city time</div></div>
+    </div>
+    <div class="ss-busiest" id="ss-busiest" hidden>
+      <span class="label">Busiest lots</span>
+      <ul class="ss-lots-list" id="ss-lots-list"></ul>
+    </div>
+    <p class="ss-foot">Game version <strong id="ss-version">—</strong></p>
+  </div>
+</section>
+
 <section class="section">
   <h2>Why OpenSO</h2>
   <p class="sub">A polished, fair place to play — not a museum piece, and not a cash grab.</p>
@@ -91,5 +119,7 @@
   <div class="credit">Built on FreeSO · free · open source · never pay-to-win. The Sims™ is a trademark of EA. OpenSO is a fan project and is not affiliated with EA.</div>
 </footer>
 
+<script src="assets/openso.js"></script>
+<script src="assets/status.js"></script>
 </body>
 </html>

@@ -118,6 +118,58 @@ a:hover{text-decoration:underline}
 .pill{display:inline-block;background:var(--pill-bg);color:var(--pill-ink);font-size:13px;
   font-weight:600;padding:4px 12px;border-radius:20px;margin-bottom:14px}
 
+/* ---- live server status (mirrors the launcher's SERVER STATUS card) ---- */
+.ss-card{
+  max-width:760px;margin:0 auto;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius);padding:24px 26px;
+}
+.ss-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.ss-head-l{display:flex;align-items:center;gap:10px;min-width:0}
+.ss-dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--muted);box-shadow:0 0 0 3px rgba(94,136,147,.18)}
+.ss-dot.is-up{background:var(--success);box-shadow:0 0 0 3px rgba(29,158,117,.2)}
+.ss-dot.is-down{background:var(--danger);box-shadow:0 0 0 3px rgba(192,57,43,.18)}
+.ss-name{font-weight:700;color:var(--ink);font-size:17px}
+.ss-status{color:var(--muted);font-size:14px}
+.ss-head-r{display:flex;align-items:center;gap:12px}
+.ss-updated{font-size:12px;color:var(--muted)}
+.ss-refresh{
+  font-family:inherit;font-size:13px;font-weight:600;color:var(--accent-ink);
+  background:var(--pill-bg);border:1px solid transparent;border-radius:20px;
+  padding:6px 14px;cursor:pointer;transition:filter .15s;
+}
+.ss-refresh:hover{filter:brightness(.97)}
+.ss-refresh:disabled{opacity:.55;cursor:default}
+
+.ss-stats{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:14px;margin-top:22px;
+}
+.ss-stat{
+  background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:16px 14px;text-align:center;
+}
+.ss-stat .num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:30px;line-height:1.1;color:var(--ink)}
+.ss-stat .num.accent{color:var(--accent-deep)}
+.ss-stat .num.good{color:var(--success)}
+.ss-stat .lbl{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:.2px}
+
+.ss-foot{margin-top:16px;font-size:13px;color:var(--muted);text-align:center}
+.ss-foot strong{color:var(--ink);font-weight:600}
+
+.ss-busiest{margin-top:22px}
+.ss-busiest .label{display:block;font-size:12px;font-weight:700;letter-spacing:.6px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.ss-lots-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ss-lot{display:flex;align-items:center;gap:12px;border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:8px 12px;background:var(--surface)}
+.ss-lot-thumb{width:44px;height:33px;border-radius:6px;flex:none;background-size:cover;
+  background-position:center;background-color:var(--surface-2)}
+.ss-lot-name{flex:1;min-width:0;font-weight:600;color:var(--ink);font-size:15px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ss-lot-players{color:var(--accent-deep);font-weight:700;font-size:15px;flex:none}
+.ss-lot-players-lbl{color:var(--muted);font-weight:500;font-size:12px}
+
+.is-offline .ss-stat .num{color:var(--muted)}
+
 /* ---- forms / auth ---- */
 .auth-wrap{max-width:440px;margin:56px auto;padding:0 24px}
 .auth-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px}
