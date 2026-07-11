@@ -187,9 +187,9 @@ a:hover{text-decoration:underline}
 
 .ss-panel-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
 .ss-updated{font-size:12px;color:var(--muted)}
-.ss-refresh{font-family:inherit;font-size:13px;font-weight:600;color:var(--accent-ink);
+.ss-refresh{font-family:inherit;font-size:13px;font-weight:600;color:var(--pill-ink);
   background:var(--pill-bg);border:1px solid transparent;border-radius:999px;
-  padding:6px 14px;cursor:pointer;transition:filter .15s}
+  padding:6px 14px;cursor:pointer;transition:filter .15s,background .15s}
 .ss-refresh:hover{filter:brightness(.97)}
 .ss-refresh:disabled{opacity:.55;cursor:default}
 
@@ -202,6 +202,10 @@ a:hover{text-decoration:underline}
 @media (prefers-color-scheme:dark){
   .ss-fab-toggle{box-shadow:0 8px 24px rgba(0,0,0,.5)}
   .ss-panel{box-shadow:0 16px 40px rgba(0,0,0,.55)}
+  /* the faint translucent pill tint is nearly invisible on dark — give Refresh a real
+     surface + border and a light-teal label so it reads clearly as a button */
+  .ss-refresh{background:rgba(63,217,208,.18);border-color:rgba(63,217,208,.42);color:#8fece3}
+  .ss-refresh:hover{filter:none;background:rgba(63,217,208,.28)}
 }
 
 /* ---- forms / auth ---- */
