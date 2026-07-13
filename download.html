@@ -137,8 +137,21 @@
               '<a href="' + other + '">Get the ' + (intel ? "Apple Silicon" : "Intel") + " build</a>.";
             note.style.display = "";
           }
-        } else if (arm || x64) {
-          byId("dl-mac").href = arm || x64; // non-mac visitor: default to Apple Silicon
+        } else {
+          // non-mac visitor (or undetected OS): we can't know the target Mac's architecture, so
+          // surface BOTH builds — default the card to Apple Silicon and offer Intel via the note,
+          // mirroring the "other architecture" note a Mac visitor already gets.
+          if (arm || x64) byId("dl-mac").href = arm || x64;
+          if (arm && x64) {
+            byId("meta-mac").textContent = "Apple Silicon · .dmg";
+            var note = byId("alt-note");
+            note.innerHTML = 'On an Intel Mac? <a href="' + x64 + '">Get the Intel build</a>.';
+            note.style.display = "";
+          } else if (arm) {
+            byId("meta-mac").textContent = "Apple Silicon · .dmg";
+          } else if (x64) {
+            byId("meta-mac").textContent = "Intel · .dmg";
+          }
         }
       });
     })
