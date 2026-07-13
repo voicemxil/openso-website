@@ -50,6 +50,7 @@
       <span class="dl-badge" hidden>Recommended</span>
     </a>
   </div>
+  <p id="mac-both" class="sub" style="margin-top:10px;font-size:13px;display:none"></p>
   <p class="sub" style="margin-top:18px">
     Download the <strong>OpenSO launcher</strong> for your platform — it installs the game, keeps it
     up to date, and helps you fetch the original <em>The Sims Online</em> files. OpenSO never redistributes EA assets.
@@ -182,6 +183,13 @@
       var plat = byId("plat-mac");
       if (plat && arm && x64) {
         plat.innerHTML = '<a href="' + arm + '">Apple Silicon (arm64)</a> &amp; <a href="' + x64 + '">Intel (x64)</a>';
+      }
+      // Always surface BOTH Mac builds right under the cards, so the other architecture is one
+      // click away regardless of what the auto-detection resolves the Mac card to.
+      var macBoth = byId("mac-both");
+      if (macBoth && arm && x64) {
+        macBoth.innerHTML = 'macOS comes in two builds: <a href="' + arm + '">Apple Silicon (arm64)</a> · <a href="' + x64 + '">Intel (x64)</a>.';
+        macBoth.style.display = "";
       }
       if (os !== "mac") {
         if (arm || x64) byId("dl-mac").href = arm || x64;
