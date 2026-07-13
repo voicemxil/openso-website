@@ -38,6 +38,13 @@
         <label for="password">Password</label>
         <input type="password" id="password" name="password" autocomplete="new-password" required>
       </div>
+      <!-- Registration key: shown only on invite-only servers (discovered via /userapi/registration/info).
+           This is where the email-verification flow collects the key, submitted with the /confirm step. -->
+      <div class="field" id="key-field" hidden>
+        <label for="key">Registration key</label>
+        <input type="text" id="key" name="key" autocomplete="off">
+        <div class="hint">This server is invite-only. Enter the key you were given.</div>
+      </div>
       <button type="submit" class="btn btn-primary btn-block" id="submit">Confirm &amp; create</button>
     </form>
   </div>
@@ -66,16 +73,29 @@ if (!token) {
   form.style.display = "none";
 }
 
+// Reveal the key field only on invite-only servers. Fails OPEN to false, so public servers (and an
+// unreachable/absent discovery endpoint) show no key field and post an identical body to before.
+let keyRequired = false;
+(async () => {
+  const info = await opensoRegInfo();
+  keyRequired = info.key_required;
+  if (keyRequired) document.getElementById("key-field").hidden = false;
+})();
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   opensoClear(msg);
   const email    = document.getElementById("email").value.trim();
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value;
+  const key      = document.getElementById("key").value.trim();
   if (!email || !username || !password) { opensoMsg(msg,"error","Please fill in all the fields."); return; }
+  if (keyRequired && !key) { opensoMsg(msg,"error","This server is invite-only — please enter your registration key."); return; }
 
   btn.disabled = true; btn.textContent = "Confirming…";
-  const r = await opensoPost("/userapi/registration/confirm", { username, password, token, email });
+  // Only include the key when we have one, so the public flow posts an identical body to before.
+  const fields = key ? { username, password, token, email, key } : { username, password, token, email };
+  const r = await opensoPost("/userapi/registration/confirm", fields);
   if (r.ok) {
     form.style.display = "none";
     opensoMsg(msg, "ok", "Your account is ready! Download the game and sign in to start playing.");
