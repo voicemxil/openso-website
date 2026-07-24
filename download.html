@@ -68,7 +68,7 @@
   <ul class="steps" style="list-style:disc">
     <li><strong>Windows</strong> — 10/11, 64-bit.</li>
     <li><strong>macOS</strong> — <span id="plat-mac">Apple Silicon (arm64) &amp; Intel (x64)</span>.</li>
-    <li><strong>Linux</strong> — 64-bit (x64), portable .zip.</li>
+    <li><strong>Linux</strong> — 64-bit (x64), AppImage (portable .zip also available).</li>
   </ul>
 
   <h2 style="margin-top:48px">Game broken, or an update failed?</h2>
@@ -168,9 +168,13 @@
       if (!rel || !rel.assets || !rel.assets.length) return; // keep releases/latest fallback hrefs
       var a = rel.assets;
       var win = find(a, /setup.*\.exe$/i) || find(a, /win-x64\.zip$/i);
-      var lin = find(a, /linux-x64\.zip$/i);
+      var linImg = find(a, /linux-x64\.AppImage$/i); // preferred once a release ships it
+      var lin = linImg || find(a, /linux-x64\.zip$/i);
       if (win) byId("dl-win").href = win;
-      if (lin) byId("dl-linux").href = lin;
+      if (lin) {
+        byId("dl-linux").href = lin;
+        byId("meta-linux").textContent = "x64 · " + (linImg ? "AppImage" : "portable .zip");
+      }
       var arm = find(a, /osx-arm64\.dmg$/i) || find(a, /osx-arm64\.zip$/i);
       var x64 = find(a, /osx-x64\.dmg$/i) || find(a, /osx-x64\.zip$/i);
       // Supported-platforms list always links both Mac builds directly,
